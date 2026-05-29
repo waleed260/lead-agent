@@ -8,33 +8,57 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0D1B2A;--bg2:#112442;--bg3:#1B3A5C;--accent:#00C9A7;--accent-dim:#008b72;--text:#FFFFFF;--text2:#8892B0;--text3:#4A6A8A;--border:#1E3A5F;--success:#00C9A7;--info:#58A6FF;--warn:#F0C040;--danger:#F85149;--radius:8px;--shadow:0 2px 8px rgba(0,0,0,.3)}
+:root{--bg:#000000;--bg2:#111111;--bg3:#1A1A1A;--bg4:#2A2A2A;--accent:#FFFFFF;--accent-dim:#BBBBBB;--text:#FFFFFF;--text2:#999999;--text3:#555555;--border:#2A2A2A;--success:#CCCCCC;--info:#AAAAAA;--warn:#777777;--danger:#555555;--radius:8px;--shadow:0 2px 8px rgba(0,0,0,.5);--transition:all .25s cubic-bezier(.4,0,.2,1)}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,sans-serif;font-size:14px;line-height:1.5}
-/* Scrollbar */
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::selection{background:#fff;color:#000}
+/* ===== ANIMATIONS ===== */
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeSlideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulseGlow{0%,100%{text-shadow:0 0 6px rgba(255,255,255,.25)}50%{text-shadow:0 0 18px rgba(255,255,255,.5)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+@keyframes checkBounce{0%{transform:scale(1)}50%{transform:scale(.8)}100%{transform:scale(1)}}
+@keyframes borderDance{0%,100%{border-color:var(--bg4)}50%{border-color:var(--accent-dim)}}
+@keyframes lineSlide{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes countPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 /* Nav */
-.nav{display:flex;align-items:center;gap:4px;padding:0 24px;height:52px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.nav-brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--accent);margin-right:32px}
+.nav{display:flex;align-items:center;gap:4px;padding:0 24px;height:52px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;animation:fadeSlideDown .4s ease both}
+.nav-brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--accent);margin-right:32px;animation:pulseGlow 3s ease-in-out infinite}
 .nav-brand i{font-size:22px}
-.nav-tab{padding:0 16px;height:52px;display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;user-select:none;white-space:nowrap}
-.nav-tab i{font-size:18px}
+.nav-tab{padding:0 16px;height:52px;display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:var(--transition);user-select:none;white-space:nowrap;position:relative}
+.nav-tab i{font-size:18px;transition:var(--transition)}
 .nav-tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.nav-tab:hover i{transform:rotate(-8deg)}
 .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-tab.active::after{content:'';position:absolute;bottom:-2px;left:0;width:100%;height:2px;background:var(--accent);animation:scaleIn .3s ease}
 /* Content */
 .content{padding:24px;max-width:1440px;margin:0 auto}
 .tab-pane{display:none}
-.tab-pane.active{display:block}
+.tab-pane.active{display:block;animation:fadeSlideUp .35s ease both}
 /* Cards */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:var(--transition)}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
 .card-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:16px}
 /* Grids */
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid-2-settings{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 /* Metric Card */
-.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:var(--transition);position:relative;overflow:hidden}
+.metric-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--text3)}
+.metric-card:nth-child(1){animation:scaleIn .4s ease .05s both}
+.metric-card:nth-child(2){animation:scaleIn .4s ease .12s both}
+.metric-card:nth-child(3){animation:scaleIn .4s ease .19s both}
+.metric-card:nth-child(4){animation:scaleIn .4s ease .26s both}
+.metric-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,#fff,transparent);transition:left .6s ease}
+.metric-card:hover::before{left:100%}
 .metric-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:4px}
 .metric-value{font-size:28px;font-weight:700;color:var(--text);letter-spacing:-.5px}
 .metric-delta{font-size:12px;font-weight:600;margin-top:2px;display:flex;align-items:center;gap:4px}
@@ -43,94 +67,110 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 /* Pipeline */
 .pipeline-stage{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
 .pipeline-stage:last-child{border-bottom:none}
+.pipeline-stage:nth-child(1){animation:slideInRight .4s ease .15s both}
+.pipeline-stage:nth-child(2){animation:slideInRight .4s ease .25s both}
+.pipeline-stage:nth-child(3){animation:slideInRight .4s ease .35s both}
+.pipeline-stage:nth-child(4){animation:slideInRight .4s ease .45s both}
+.pipeline-stage:hover{background:rgba(255,255,255,.02);border-radius:6px;margin-left:-8px;padding-left:18px;margin-right:-8px;padding-right:8px;transition:var(--transition)}
 .pipeline-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.pipeline-icon.done{background:rgba(0,201,167,.15);color:var(--success)}
-.pipeline-icon.running{background:rgba(88,166,255,.15);color:var(--info)}
-.pipeline-icon.waiting{background:rgba(74,106,138,.15);color:var(--text3)}
+.pipeline-icon.done{background:rgba(255,255,255,.08);color:var(--success)}
+.pipeline-icon.running{background:rgba(255,255,255,.12);color:var(--info);animation:breathe 1.5s ease-in-out infinite}
+.pipeline-icon.waiting{background:rgba(255,255,255,.03);color:var(--text3)}
 .pipeline-info{flex:1;min-width:0}
 .pipeline-name{font-size:13px;font-weight:600;color:var(--text)}
-.pipeline-bar-wrap{height:4px;background:var(--bg3);border-radius:2px;margin-top:4px;overflow:hidden}
-.pipeline-bar{height:100%;border-radius:2px;transition:width .5s}
+.pipeline-bar-wrap{height:4px;background:var(--bg4);border-radius:2px;margin-top:4px;overflow:hidden}
+.pipeline-bar{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
 .pipeline-bar.done{background:var(--success)}
-.pipeline-bar.running{background:var(--info);animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pipeline-bar.running{background:linear-gradient(90deg,var(--info) 30%,var(--accent) 70%);background-size:200% 100%;animation:shimmer 2s linear infinite}
 .pipeline-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;flex-shrink:0}
-.pipeline-badge.done{background:rgba(0,201,167,.12);color:var(--success)}
-.pipeline-badge.running{background:rgba(88,166,255,.12);color:var(--info)}
-.pipeline-badge.waiting{background:rgba(74,106,138,.12);color:var(--text3)}
+.pipeline-badge.done{background:rgba(255,255,255,.08);color:var(--success)}
+.pipeline-badge.running{background:rgba(255,255,255,.12);color:var(--info)}
+.pipeline-badge.waiting{background:rgba(255,255,255,.03);color:var(--text3)}
 /* Form */
 .form-group{margin-bottom:16px}
 .form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px}
-.form-input{width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;outline:none;transition:border .15s}
-.form-input:focus{border-color:var(--accent)}
+.form-input{width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;outline:none;transition:var(--transition)}
+.form-input:focus{border-color:var(--text);border-width:1px;box-shadow:0 0 0 1px rgba(255,255,255,.15)}
 .form-input::placeholder{color:var(--text3)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.checkbox-label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:6px 0}
-.checkbox-label input[type="checkbox"]{appearance:none;width:16px;height:16px;border:2px solid var(--border);border-radius:3px;background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.checkbox-label input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
-.checkbox-label input[type="checkbox"]:checked::after{content:"✓";color:#0D1B2A;font-size:11px;font-weight:700}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
-.btn-primary{background:var(--accent);color:#0D1B2A}
-.btn-primary:hover{background:var(--accent-dim)}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.checkbox-label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:6px 0;transition:var(--transition)}
+.checkbox-label:hover{color:var(--accent)}
+.checkbox-label input[type="checkbox"]{appearance:none;width:16px;height:16px;border:2px solid var(--text3);border-radius:3px;background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--transition)}
+.checkbox-label input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent);animation:checkBounce .3s ease}
+.checkbox-label input[type="checkbox"]:checked::after{content:"✓";color:#000;font-size:11px;font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.15);transform:translate(-50%,-50%);transition:width .6s,height .6s}
+.btn:active::after{width:200px;height:200px}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent-dim);transform:translateY(-1px);box-shadow:0 4px 16px rgba(255,255,255,.15)}
+.btn-primary:active{transform:translateY(0) scale(.98)}
+.btn-primary:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
-.btn-outline:hover{background:var(--bg3);color:var(--text)}
+.btn-outline:hover{background:var(--bg4);color:var(--text);border-color:var(--text3)}
 .btn-sm{padding:6px 14px;font-size:12px}
-/* Progress bar (run agent) */
-.run-progress-wrap{margin-top:20px;padding:16px 0}
-.run-stage{display:flex;align-items:center;gap:16px;padding:12px 16px;border-radius:6px;margin-bottom:8px;transition:all .3s}
-.run-stage.pending{background:var(--bg2);opacity:.5}
-.run-stage.active{background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.2)}
-.run-stage.done{background:rgba(0,201,167,.05)}
-.run-stage-number{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-.run-stage.pending .run-stage-number{background:var(--bg3);color:var(--text3)}
-.run-stage.active .run-stage-number{background:var(--accent);color:#0D1B2A;animation:pulse 1s infinite}
-.run-stage.done .run-stage-number{background:var(--success);color:#0D1B2A}
+/* Run stages */
+.run-stage{display:flex;align-items:center;gap:16px;padding:12px 16px;border-radius:6px;margin-bottom:8px;transition:var(--transition)}
+.run-stage.pending{background:var(--bg2);opacity:.4}
+.run-stage.active{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);animation:borderDance 1.5s ease infinite}
+.run-stage.done{background:rgba(255,255,255,.03)}
+.run-stage-number{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;transition:var(--transition)}
+.run-stage.pending .run-stage-number{background:var(--bg4);color:var(--text3)}
+.run-stage.active .run-stage-number{background:var(--accent);color:#000;animation:breathe 1s ease-in-out infinite}
+.run-stage.done .run-stage-number{background:var(--success);color:#000}
 .run-stage-label{flex:1;font-size:13px;font-weight:500}
-.run-stage-status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px}
+.run-stage-status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;transition:var(--transition)}
 .run-stage.pending .run-stage-status{color:var(--text3)}
 .run-stage.active .run-stage-status{color:var(--accent)}
 .run-stage.done .run-stage-status{color:var(--success)}
+.run-stage.done .run-stage-number{animation:checkBounce .4s ease}
 /* Table */
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);border-bottom:1px solid var(--border)}
-td{padding:10px 12px;border-bottom:1px solid rgba(30,58,95,.5);color:var(--text)}
-tr:hover td{background:rgba(255,255,255,.02)}
+td{padding:10px 12px;border-bottom:1px solid rgba(42,42,42,.5);color:var(--text);transition:background .2s}
+tr{transition:background .2s}
+tr:hover td{background:rgba(255,255,255,.03)}
+tr:last-child td{border-bottom:none}
 .social-yes{color:var(--success)}
 .social-no{color:var(--text3)}
 .search-bar{position:relative;margin-bottom:16px}
-.search-bar i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px}
+.search-bar i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;transition:var(--transition)}
+.search-bar:focus-within i{color:var(--text)}
 .search-bar input{padding-left:36px;width:280px}
 /* Logs */
-.log-panel{background:#0A0F1A;border:1px solid var(--border);border-radius:var(--radius);padding:16px;font-family:'SF Mono','Fira Code','Cascadia Code',monospace;font-size:12px;height:500px;overflow-y:auto;line-height:1.7}
-.log-line{white-space:pre-wrap;word-break:break-all;padding:0 4px}
+.log-panel{background:#050505;border:1px solid var(--border);border-radius:var(--radius);padding:16px;font-family:'SF Mono','Fira Code','Cascadia Code',monospace;font-size:12px;height:500px;overflow-y:auto;line-height:1.7}
+.log-line{white-space:pre-wrap;word-break:break-all;padding:2px 4px;animation:lineSlide .25s ease both}
 .log-line .ts{color:var(--text3)}
 .log-line.success{color:var(--success)}
 .log-line.info{color:var(--info)}
 .log-line.warn{color:var(--warn)}
+.log-line:hover{background:rgba(255,255,255,.03);border-radius:3px}
 .log-actions{display:flex;gap:8px;margin-bottom:12px}
 /* Settings */
-.setting-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
-.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.setting-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;transition:var(--transition)}
+.setting-card:hover{box-shadow:var(--shadow)}
+.setting-card:nth-child(1){animation:fadeSlideUp .4s ease .1s both}
+.setting-card:nth-child(2){animation:fadeSlideUp .4s ease .2s both}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);transition:var(--transition)}
 .setting-row:last-child{border-bottom:none}
+.setting-row:hover{padding-left:4px}
 .setting-label{font-size:13px;color:var(--text)}
 .setting-desc{font-size:11px;color:var(--text2);margin-top:1px}
 .setting-value{font-size:13px;color:var(--text2);font-family:'SF Mono',monospace}
 /* Toggle */
 .toggle{position:relative;width:40px;height:22px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
-.toggle .slider{position:absolute;inset:0;background:var(--bg3);border-radius:11px;cursor:pointer;transition:all .2s}
-.toggle .slider::before{content:"";position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:var(--text2);border-radius:50%;transition:all .2s}
+.toggle .slider{position:absolute;inset:0;background:var(--bg4);border-radius:11px;cursor:pointer;transition:var(--transition)}
+.toggle .slider::before{content:"";position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:var(--text3);border-radius:50%;transition:var(--transition)}
 .toggle input:checked+.slider{background:var(--accent)}
-.toggle input:checked+.slider::before{background:#0D1B2A;transform:translateX(18px)}
-/* Password input wraps */
+.toggle input:checked+.slider::before{background:#000;transform:translateX(18px)}
+.toggle input:checked+.slider::before{animation:checkBounce .3s ease}
+/* Password wraps */
 .pw-wrap{display:flex;align-items:center;gap:8px}
 .pw-wrap input{flex:1}
-.pw-wrap i{color:var(--text3);cursor:pointer;font-size:18px}
-.pw-wrap i:hover{color:var(--text)}
-/* Chart wrapper */
+.pw-wrap i{color:var(--text3);cursor:pointer;font-size:18px;transition:var(--transition)}
+.pw-wrap i:hover{color:var(--text);transform:scale(1.1)}
+/* Chart */
 .chart-wrap{position:relative;height:220px}
 /* Utility */
 .mb-8{margin-bottom:8px}
@@ -144,6 +184,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .text-muted{color:var(--text2)}
 .text-sm{font-size:12px}
 .font-mono{font-family:'SF Mono',monospace}
+/* Metric count animation class */
+.count-anim{animation:countPulse .15s ease}
 /* Responsive */
 @media(max-width:960px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}.grid-2-settings{grid-template-columns:1fr}}
 @media(max-width:600px){.grid-4{grid-template-columns:1fr}.nav{padding:0 12px}.nav-tab{padding:0 10px;font-size:12px}.content{padding:16px}}
@@ -167,22 +209,22 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="grid-4">
     <div class="metric-card">
       <div class="metric-label">Total Scraped</div>
-      <div class="metric-value" id="metric-scraped">847</div>
+      <div class="metric-value" id="metric-scraped">0</div>
       <div class="metric-delta up"><i class="ti ti-trending-up"></i> +12.4%</div>
     </div>
     <div class="metric-card">
       <div class="metric-label">AI Enriched</div>
-      <div class="metric-value" id="metric-enriched">621</div>
+      <div class="metric-value" id="metric-enriched">0</div>
       <div class="metric-delta up"><i class="ti ti-trending-up"></i> +8.7%</div>
     </div>
     <div class="metric-card">
       <div class="metric-label">Emails Found</div>
-      <div class="metric-value" id="metric-emails">438</div>
+      <div class="metric-value" id="metric-emails">0</div>
       <div class="metric-delta up"><i class="ti ti-trending-up"></i> +15.2%</div>
     </div>
     <div class="metric-card">
       <div class="metric-label">Socials Found</div>
-      <div class="metric-value" id="metric-socials">312</div>
+      <div class="metric-value" id="metric-socials">0</div>
       <div class="metric-delta down"><i class="ti ti-trending-down"></i> -2.1%</div>
     </div>
   </div>
@@ -459,13 +501,54 @@ tr:hover td{background:rgba(255,255,255,.02)}
 </div><!-- .content -->
 
 <script>
+// ==================== ANIMATE COUNT-UP ====================
+function animateValue(el, target, duration) {
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+    el.textContent = Math.floor(eased * target);
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+const metricTargets = {
+  'metric-scraped': 847,
+  'metric-enriched': 621,
+  'metric-emails': 438,
+  'metric-socials': 312
+};
+
+function runCountUps() {
+  Object.keys(metricTargets).forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.dataset.counted !== '1') {
+      el.dataset.counted = '1';
+      animateValue(el, metricTargets[id], 800);
+    }
+  });
+}
+
 // ==================== TAB SWITCHING ====================
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => {
+      p.classList.remove('active');
+      p.style.animation = 'none';
+      void p.offsetHeight;
+    });
     tab.classList.add('active');
-    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    const pane = document.getElementById('tab-' + tab.dataset.tab);
+    pane.classList.add('active');
+    pane.style.animation = 'fadeSlideUp .35s ease both';
+    if (tab.dataset.tab === 'overview') runCountUps();
+    if (tab.dataset.tab === 'leads') {
+      document.querySelectorAll('#leadsBody tr').forEach((tr, i) => {
+        tr.style.animation = `fadeSlideUp .3s ease ${i * 0.04}s both`;
+      });
+    }
   });
 });
 
@@ -478,8 +561,8 @@ new Chart(ctx, {
     datasets: [{
       label: 'Leads',
       data: [42, 58, 35, 71, 64, 53],
-      backgroundColor: 'rgba(0,201,167,.6)',
-      borderColor: '#00C9A7',
+      backgroundColor: ['rgba(255,255,255,.5)','rgba(255,255,255,.35)','rgba(255,255,255,.5)','rgba(255,255,255,.7)','rgba(255,255,255,.5)','rgba(255,255,255,.35)'],
+      borderColor: '#fff',
       borderWidth: 1,
       borderRadius: 3
     }]
@@ -487,16 +570,17 @@ new Chart(ctx, {
   options: {
     responsive: true,
     maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeOutQuart' },
     plugins: { legend: { display: false } },
     scales: {
       y: {
         beginAtZero: true,
-        grid: { color: 'rgba(255,255,255,.05)' },
-        ticks: { color: '#8892B0', font: { size: 11 } }
+        grid: { color: 'rgba(255,255,255,.06)' },
+        ticks: { color: '#666', font: { size: 11 } }
       },
       x: {
         grid: { display: false },
-        ticks: { color: '#8892B0', font: { size: 11 } }
+        ticks: { color: '#666', font: { size: 11 } }
       }
     }
   }
@@ -516,8 +600,8 @@ const leadsData = [
 
 function renderLeads(data) {
   const tbody = document.getElementById('leadsBody');
-  tbody.innerHTML = data.map(l => `
-    <tr>
+  tbody.innerHTML = data.map((l, i) => `
+    <tr style="animation:fadeSlideUp .3s ease ${i * 0.04}s both">
       <td><strong>${l.name}</strong></td>
       <td>${l.category}</td>
       <td class="font-mono text-sm">${l.phone}</td>
@@ -605,7 +689,6 @@ function appendLog(msg, cls) {
   panel.scrollTop = panel.scrollHeight;
 }
 
-// Seed initial logs
 const seedLogs = [
   { msg: 'Agent dashboard initialized', cls: 'info' },
   { msg: 'Last pipeline run: 2026-05-28 14:32:18', cls: 'info' },
@@ -640,7 +723,7 @@ document.querySelectorAll('.toggle-pw').forEach(icon => {
   });
 });
 
-// ==================== LIVE PIPELINE REFRESH (simulated) ====================
+// ==================== LIVE PIPELINE REFRESH ====================
 setInterval(() => {
   const bar = document.querySelector('.pipeline-bar.running');
   if (bar) {
@@ -652,6 +735,9 @@ setInterval(() => {
     }
   }
 }, 2000);
+
+// ==================== INIT: count-up on load ====================
+runCountUps();
 </script>
 </body>
 </html>
