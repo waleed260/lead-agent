@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Agent Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.48.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0D1B2A;--bg2:#112442;--bg3:#1B3A5C;--accent:#00C9A7;--accent-dim:#008b72;--text:#FFFFFF;--text2:#8892B0;--text3:#4A6A8A;--border:#1E3A5F;--success:#00C9A7;--info:#58A6FF;--warn:#F0C040;--danger:#F85149;--radius:8px;--shadow:0 2px 8px rgba(0,0,0,.3)}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,sans-serif;font-size:14px;line-height:1.5}
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+/* Nav */
+.nav{display:flex;align-items:center;gap:4px;padding:0 24px;height:52px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--accent);margin-right:32px}
+.nav-brand i{font-size:22px}
+.nav-tab{padding:0 16px;height:52px;display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;user-select:none;white-space:nowrap}
+.nav-tab i{font-size:18px}
+.nav-tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+/* Content */
+.content{padding:24px;max-width:1440px;margin:0 auto}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:16px}
+/* Grids */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-2-settings{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* Metric Card */
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+.metric-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:4px}
+.metric-value{font-size:28px;font-weight:700;color:var(--text);letter-spacing:-.5px}
+.metric-delta{font-size:12px;font-weight:600;margin-top:2px;display:flex;align-items:center;gap:4px}
+.metric-delta.up{color:var(--success)}
+.metric-delta.down{color:var(--danger)}
+/* Pipeline */
+.pipeline-stage{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.pipeline-stage:last-child{border-bottom:none}
+.pipeline-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.pipeline-icon.done{background:rgba(0,201,167,.15);color:var(--success)}
+.pipeline-icon.running{background:rgba(88,166,255,.15);color:var(--info)}
+.pipeline-icon.waiting{background:rgba(74,106,138,.15);color:var(--text3)}
+.pipeline-info{flex:1;min-width:0}
+.pipeline-name{font-size:13px;font-weight:600;color:var(--text)}
+.pipeline-bar-wrap{height:4px;background:var(--bg3);border-radius:2px;margin-top:4px;overflow:hidden}
+.pipeline-bar{height:100%;border-radius:2px;transition:width .5s}
+.pipeline-bar.done{background:var(--success)}
+.pipeline-bar.running{background:var(--info);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pipeline-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;flex-shrink:0}
+.pipeline-badge.done{background:rgba(0,201,167,.12);color:var(--success)}
+.pipeline-badge.running{background:rgba(88,166,255,.12);color:var(--info)}
+.pipeline-badge.waiting{background:rgba(74,106,138,.12);color:var(--text3)}
+/* Form */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px}
+.form-input{width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;outline:none;transition:border .15s}
+.form-input:focus{border-color:var(--accent)}
+.form-input::placeholder{color:var(--text3)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.checkbox-label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;padding:6px 0}
+.checkbox-label input[type="checkbox"]{appearance:none;width:16px;height:16px;border:2px solid var(--border);border-radius:3px;background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.checkbox-label input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
+.checkbox-label input[type="checkbox"]:checked::after{content:"✓";color:#0D1B2A;font-size:11px;font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--accent);color:#0D1B2A}
+.btn-primary:hover{background:var(--accent-dim)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-outline:hover{background:var(--bg3);color:var(--text)}
+.btn-sm{padding:6px 14px;font-size:12px}
+/* Progress bar (run agent) */
+.run-progress-wrap{margin-top:20px;padding:16px 0}
+.run-stage{display:flex;align-items:center;gap:16px;padding:12px 16px;border-radius:6px;margin-bottom:8px;transition:all .3s}
+.run-stage.pending{background:var(--bg2);opacity:.5}
+.run-stage.active{background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.2)}
+.run-stage.done{background:rgba(0,201,167,.05)}
+.run-stage-number{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.run-stage.pending .run-stage-number{background:var(--bg3);color:var(--text3)}
+.run-stage.active .run-stage-number{background:var(--accent);color:#0D1B2A;animation:pulse 1s infinite}
+.run-stage.done .run-stage-number{background:var(--success);color:#0D1B2A}
+.run-stage-label{flex:1;font-size:13px;font-weight:500}
+.run-stage-status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px}
+.run-stage.pending .run-stage-status{color:var(--text3)}
+.run-stage.active .run-stage-status{color:var(--accent)}
+.run-stage.done .run-stage-status{color:var(--success)}
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid rgba(30,58,95,.5);color:var(--text)}
+tr:hover td{background:rgba(255,255,255,.02)}
+.social-yes{color:var(--success)}
+.social-no{color:var(--text3)}
+.search-bar{position:relative;margin-bottom:16px}
+.search-bar i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px}
+.search-bar input{padding-left:36px;width:280px}
+/* Logs */
+.log-panel{background:#0A0F1A;border:1px solid var(--border);border-radius:var(--radius);padding:16px;font-family:'SF Mono','Fira Code','Cascadia Code',monospace;font-size:12px;height:500px;overflow-y:auto;line-height:1.7}
+.log-line{white-space:pre-wrap;word-break:break-all;padding:0 4px}
+.log-line .ts{color:var(--text3)}
+.log-line.success{color:var(--success)}
+.log-line.info{color:var(--info)}
+.log-line.warn{color:var(--warn)}
+.log-actions{display:flex;gap:8px;margin-bottom:12px}
+/* Settings */
+.setting-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:13px;color:var(--text)}
+.setting-desc{font-size:11px;color:var(--text2);margin-top:1px}
+.setting-value{font-size:13px;color:var(--text2);font-family:'SF Mono',monospace}
+/* Toggle */
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;inset:0;background:var(--bg3);border-radius:11px;cursor:pointer;transition:all .2s}
+.toggle .slider::before{content:"";position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:var(--text2);border-radius:50%;transition:all .2s}
+.toggle input:checked+.slider{background:var(--accent)}
+.toggle input:checked+.slider::before{background:#0D1B2A;transform:translateX(18px)}
+/* Password input wraps */
+.pw-wrap{display:flex;align-items:center;gap:8px}
+.pw-wrap input{flex:1}
+.pw-wrap i{color:var(--text3);cursor:pointer;font-size:18px}
+.pw-wrap i:hover{color:var(--text)}
+/* Chart wrapper */
+.chart-wrap{position:relative;height:220px}
+/* Utility */
+.mb-8{margin-bottom:8px}
+.mb-16{margin-bottom:16px}
+.mb-24{margin-bottom:24px}
+.flex{display:flex}
+.items-center{align-items:center}
+.gap-8{gap:8px}
+.gap-16{gap:16px}
+.text-accent{color:var(--accent)}
+.text-muted{color:var(--text2)}
+.text-sm{font-size:12px}
+.font-mono{font-family:'SF Mono',monospace}
+/* Responsive */
+@media(max-width:960px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}.grid-2-settings{grid-template-columns:1fr}}
+@media(max-width:600px){.grid-4{grid-template-columns:1fr}.nav{padding:0 12px}.nav-tab{padding:0 10px;font-size:12px}.content{padding:16px}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand"><i class="ti ti-robot"></i> Lead Agent</div>
+  <div class="nav-tab active" data-tab="overview"><i class="ti ti-dashboard"></i> Overview</div>
+  <div class="nav-tab" data-tab="run"><i class="ti ti-player-play"></i> Run Agent</div>
+  <div class="nav-tab" data-tab="leads"><i class="ti ti-users"></i> Leads</div>
+  <div class="nav-tab" data-tab="logs"><i class="ti ti-terminal"></i> Logs</div>
+  <div class="nav-tab" data-tab="settings"><i class="ti ti-settings"></i> Settings</div>
+</nav>
+
+<div class="content">
+
+<!-- ==================== OVERVIEW ==================== -->
+<div class="tab-pane active" id="tab-overview">
+  <div class="grid-4">
+    <div class="metric-card">
+      <div class="metric-label">Total Scraped</div>
+      <div class="metric-value" id="metric-scraped">847</div>
+      <div class="metric-delta up"><i class="ti ti-trending-up"></i> +12.4%</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">AI Enriched</div>
+      <div class="metric-value" id="metric-enriched">621</div>
+      <div class="metric-delta up"><i class="ti ti-trending-up"></i> +8.7%</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Emails Found</div>
+      <div class="metric-value" id="metric-emails">438</div>
+      <div class="metric-delta up"><i class="ti ti-trending-up"></i> +15.2%</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Socials Found</div>
+      <div class="metric-value" id="metric-socials">312</div>
+      <div class="metric-delta down"><i class="ti ti-trending-down"></i> -2.1%</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Leads Per Run — Last 6 Runs</div>
+      <div class="chart-wrap"><canvas id="leadsChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Pipeline Status</div>
+      <div id="pipeline-list">
+        <div class="pipeline-stage">
+          <div class="pipeline-icon done"><i class="ti ti-check"></i></div>
+          <div class="pipeline-info">
+            <div class="pipeline-name">Google Maps Scraper</div>
+            <div class="pipeline-bar-wrap"><div class="pipeline-bar done" style="width:100%"></div></div>
+          </div>
+          <div class="pipeline-badge done">Done</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-icon done"><i class="ti ti-check"></i></div>
+          <div class="pipeline-info">
+            <div class="pipeline-name">Claude AI Enrichment</div>
+            <div class="pipeline-bar-wrap"><div class="pipeline-bar done" style="width:100%"></div></div>
+          </div>
+          <div class="pipeline-badge done">Done</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-icon running"><i class="ti ti-refresh"></i></div>
+          <div class="pipeline-info">
+            <div class="pipeline-name">SerpAPI Social Search</div>
+            <div class="pipeline-bar-wrap"><div class="pipeline-bar running" style="width:60%"></div></div>
+          </div>
+          <div class="pipeline-badge running">Running</div>
+        </div>
+        <div class="pipeline-stage">
+          <div class="pipeline-icon waiting"><i class="ti ti-clock"></i></div>
+          <div class="pipeline-info">
+            <div class="pipeline-name">Google Sheets Export</div>
+            <div class="pipeline-bar-wrap"><div class="pipeline-bar done" style="width:0%"></div></div>
+          </div>
+          <div class="pipeline-badge waiting">Waiting</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== RUN AGENT ==================== -->
+<div class="tab-pane" id="tab-run">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Run Configuration</div>
+      <form id="runForm">
+        <div class="form-group">
+          <label class="form-label">Search Query</label>
+          <input class="form-input" id="query" placeholder="e.g. restaurants in Lahore" value="plumbers in Lahore">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Max Results</label>
+            <input class="form-input" id="maxResults" type="number" value="30" min="1" max="200">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Delay (seconds)</label>
+            <input class="form-input" id="delay" type="number" value="2" min="0" max="30" step="0.5">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stages to Run</label>
+          <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" checked><span>Google Maps Scraper</span></label>
+            <label class="checkbox-label"><input type="checkbox" checked><span>Claude AI Enrichment</span></label>
+            <label class="checkbox-label"><input type="checkbox" checked><span>SerpAPI Social Search</span></label>
+            <label class="checkbox-label"><input type="checkbox" checked><span>Google Sheets Export</span></label>
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit" id="startRunBtn"><i class="ti ti-player-play"></i> Start Run</button>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-title">Run Progress</div>
+      <div id="runProgress">
+        <div class="run-stage pending" data-stage="0">
+          <div class="run-stage-number">1</div>
+          <div class="run-stage-label">Google Maps Scraper</div>
+          <div class="run-stage-status">Waiting</div>
+        </div>
+        <div class="run-stage pending" data-stage="1">
+          <div class="run-stage-number">2</div>
+          <div class="run-stage-label">Claude AI Enrichment</div>
+          <div class="run-stage-status">Waiting</div>
+        </div>
+        <div class="run-stage pending" data-stage="2">
+          <div class="run-stage-number">3</div>
+          <div class="run-stage-label">SerpAPI Social Search</div>
+          <div class="run-stage-status">Waiting</div>
+        </div>
+        <div class="run-stage pending" data-stage="3">
+          <div class="run-stage-number">4</div>
+          <div class="run-stage-label">Google Sheets Export</div>
+          <div class="run-stage-status">Waiting</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== LEADS ==================== -->
+<div class="tab-pane" id="tab-leads">
+  <div class="card">
+    <div class="flex items-center gap-16 mb-16">
+      <div class="card-title" style="margin-bottom:0">Business Leads</div>
+      <div class="search-bar" style="margin-bottom:0;margin-left:auto">
+        <i class="ti ti-search"></i>
+        <input class="form-input" id="leadsSearch" placeholder="Search by name, category, phone..." style="width:260px">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Business Name</th>
+            <th>Category</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Instagram</th>
+            <th>Facebook</th>
+            <th>Founder</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody id="leadsBody"></tbody>
+      </table>
+    </div>
+    <div class="text-sm text-muted" style="margin-top:12px" id="leadsCount">Showing 8 of 8 leads</div>
+  </div>
+</div>
+
+<!-- ==================== LOGS ==================== -->
+<div class="tab-pane" id="tab-logs">
+  <div class="card">
+    <div class="card-title">Agent Activity Log</div>
+    <div class="log-actions">
+      <button class="btn btn-outline btn-sm" id="simulateLogBtn"><i class="ti ti-plus"></i> Simulate</button>
+      <button class="btn btn-outline btn-sm" id="clearLogBtn"><i class="ti ti-trash"></i> Clear</button>
+    </div>
+    <div class="log-panel" id="logPanel"></div>
+  </div>
+</div>
+
+<!-- ==================== SETTINGS ==================== -->
+<div class="tab-pane" id="tab-settings">
+  <div class="grid-2-settings">
+    <div>
+      <div class="setting-card">
+        <div class="card-title">API Keys</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Anthropic</div>
+            <div class="setting-desc">Claude API key for AI enrichment</div>
+          </div>
+          <div class="pw-wrap">
+            <input class="form-input" type="password" value="sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="width:200px" id="anthropicKey">
+            <i class="ti ti-eye toggle-pw" data-target="anthropicKey"></i>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">SerpAPI</div>
+            <div class="setting-desc">Google Search API key</div>
+          </div>
+          <div class="pw-wrap">
+            <input class="form-input" type="password" value="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="width:200px" id="serpapiKey">
+            <i class="ti ti-eye toggle-pw" data-target="serpapiKey"></i>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Google Sheet ID</div>
+            <div class="setting-desc">Target spreadsheet identifier</div>
+          </div>
+          <div class="pw-wrap">
+            <input class="form-input" type="password" value="1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="width:200px" id="sheetId">
+            <i class="ti ti-eye toggle-pw" data-target="sheetId"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-card">
+        <div class="card-title">Claude Model Config</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Model</div>
+          </div>
+          <div class="setting-value">claude-haiku-4-5-20251001</div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Max Tokens</div>
+          </div>
+          <div class="setting-value">300</div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Temperature</div>
+          </div>
+          <div class="setting-value">0.7</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="setting-card">
+        <div class="card-title">Agent Toggles</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Headless Browser</div>
+            <div class="setting-desc">Run Chromium without visible window</div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">AI Enrichment</div>
+            <div class="setting-desc">Extract data using Claude AI</div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Social Search</div>
+            <div class="setting-desc">Fill missing profiles via SerpAPI</div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Auto-Push to Sheets</div>
+            <div class="setting-desc">Write results automatically</div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="setting-card">
+        <div class="card-title">Output Config</div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Deduplication</div>
+            <div class="setting-desc">Skip duplicate business entries</div>
+          </div>
+          <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Save HTML</div>
+            <div class="setting-desc">Persist scraped page source</div>
+          </div>
+          <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Styled Header</div>
+            <div class="setting-desc">Bold header with colored background</div>
+          </div>
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- .content -->
+
+<script>
+// ==================== TAB SWITCHING ====================
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ==================== OVERVIEW: CHART ====================
+const ctx = document.getElementById('leadsChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Run 1', 'Run 2', 'Run 3', 'Run 4', 'Run 5', 'Run 6'],
+    datasets: [{
+      label: 'Leads',
+      data: [42, 58, 35, 71, 64, 53],
+      backgroundColor: 'rgba(0,201,167,.6)',
+      borderColor: '#00C9A7',
+      borderWidth: 1,
+      borderRadius: 3
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(255,255,255,.05)' },
+        ticks: { color: '#8892B0', font: { size: 11 } }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#8892B0', font: { size: 11 } }
+      }
+    }
+  }
+});
+
+// ==================== LEADS ====================
+const leadsData = [
+  { name: 'Butt Karahi Restaurant', category: 'Restaurant', phone: '+92 42 111 111 111', email: 'info@buttkarahi.com', insta: true, fb: true, founder: 'Haji Muhammad Butt', rating: 4.5 },
+  { name: 'Liberty Books', category: 'Retail', phone: '+92 42 3578 1234', email: 'sales@libertybooks.com', insta: true, fb: true, founder: 'Adeel Ahmed', rating: 4.3 },
+  { name: 'Emporium Mall', category: 'Shopping Mall', phone: '+92 42 3259 0000', email: 'info@emporiummall.pk', insta: true, fb: false, founder: '', rating: 4.4 },
+  { name: 'Haveli Restaurant', category: 'Restaurant', phone: '+92 42 3722 2222', email: 'reservations@haveli.com', insta: true, fb: true, founder: 'Sardar Khan', rating: 4.6 },
+  { name: 'Packages Mall', category: 'Shopping Mall', phone: '+92 42 111 725 837', email: 'info@packagesmall.pk', insta: false, fb: true, founder: '', rating: 4.2 },
+  { name: 'Gaddafi Stadium', category: 'Sports Venue', phone: '+92 42 3571 2345', email: 'info@pcb.com.pk', insta: false, fb: true, founder: 'PCB Management', rating: 4.0 },
+  { name: 'Shalimar Garden', category: 'Tourist Attraction', phone: '+92 42 3678 9000', email: 'info@shalimargarden.pk', insta: false, fb: false, founder: '', rating: 4.1 },
+  { name: 'Lahore Museum', category: 'Museum', phone: '+92 42 9921 2345', email: 'info@lahoremuseum.pk', insta: true, fb: true, founder: 'Government of Punjab', rating: 4.3 }
+];
+
+function renderLeads(data) {
+  const tbody = document.getElementById('leadsBody');
+  tbody.innerHTML = data.map(l => `
+    <tr>
+      <td><strong>${l.name}</strong></td>
+      <td>${l.category}</td>
+      <td class="font-mono text-sm">${l.phone}</td>
+      <td style="color:var(--accent)">${l.email}</td>
+      <td>${l.insta ? '<i class="ti ti-check social-yes"></i>' : '<i class="ti ti-minus social-no"></i>'}</td>
+      <td>${l.fb ? '<i class="ti ti-check social-yes"></i>' : '<i class="ti ti-minus social-no"></i>'}</td>
+      <td>${l.founder || '<span class="text-muted">—</span>'}</td>
+      <td><span style="color:${l.rating >= 4.3 ? 'var(--success)' : 'var(--warn)'}">${l.rating}</span></td>
+    </tr>
+  `).join('');
+  document.getElementById('leadsCount').textContent = `Showing ${data.length} of ${leadsData.length} leads`;
+}
+
+renderLeads(leadsData);
+
+document.getElementById('leadsSearch').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase();
+  const filtered = leadsData.filter(l =>
+    l.name.toLowerCase().includes(q) ||
+    l.category.toLowerCase().includes(q) ||
+    l.phone.includes(q) ||
+    l.email.toLowerCase().includes(q) ||
+    l.founder.toLowerCase().includes(q)
+  );
+  renderLeads(filtered);
+});
+
+// ==================== RUN AGENT ====================
+document.getElementById('runForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('startRunBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-refresh"></i> Running...';
+
+  const stages = document.querySelectorAll('#runProgress .run-stage');
+  stages.forEach(s => { s.className = 'run-stage pending'; s.querySelector('.run-stage-status').textContent = 'Waiting'; });
+  let idx = 0;
+
+  function runNext() {
+    if (idx >= stages.length) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-player-play"></i> Start Run';
+      appendLog('Run completed successfully', 'success');
+      return;
+    }
+    const stage = stages[idx];
+    const labels = ['Scraping Google Maps...', 'Enriching with Claude AI...', 'Searching social profiles via SerpAPI...', 'Writing to Google Sheets...'];
+    stage.className = 'run-stage active';
+    stage.querySelector('.run-stage-status').textContent = 'Running...';
+    appendLog(labels[idx], 'info');
+    const delay = parseInt(document.getElementById('delay').value) * 1000 || 2000;
+    setTimeout(() => {
+      stage.className = 'run-stage done';
+      stage.querySelector('.run-stage-status').textContent = '✓ Done';
+      appendLog(labels[idx].replace('...', '') + ' — complete', 'success');
+      idx++;
+      setTimeout(runNext, 600);
+    }, delay);
+  }
+  appendLog('Pipeline started', 'info');
+  runNext();
+});
+
+// ==================== LOGS ====================
+const logTypes = [
+  { msg: 'Scraped 12 businesses from Google Maps', cls: 'success' },
+  { msg: 'Claude enrichment complete for batch', cls: 'success' },
+  { msg: 'Rate limit approaching — 85/100 requests used', cls: 'warn' },
+  { msg: 'Agent initialized with headless Chromium', cls: 'info' },
+  { msg: 'SerpAPI returned 0 results for Instagram', cls: 'warn' },
+  { msg: 'Pushed 12 rows to Google Sheets', cls: 'success' },
+  { msg: 'Retrying failed enrichment (attempt 2/3)', cls: 'warn' },
+  { msg: 'Parsed website content for Butt Karahi', cls: 'info' },
+  { msg: 'Enriched business #14 — Emails, socials extracted', cls: 'success' },
+  { msg: 'Google Maps UI selector matched 45 listings', cls: 'info' },
+];
+
+function appendLog(msg, cls) {
+  const panel = document.getElementById('logPanel');
+  const ts = new Date().toLocaleString('en-GB', { hour12: false }).replace(',', '');
+  const div = document.createElement('div');
+  div.className = 'log-line ' + cls;
+  div.innerHTML = `<span class="ts">[${ts}]</span> ${msg}`;
+  panel.appendChild(div);
+  panel.scrollTop = panel.scrollHeight;
+}
+
+// Seed initial logs
+const seedLogs = [
+  { msg: 'Agent dashboard initialized', cls: 'info' },
+  { msg: 'Last pipeline run: 2026-05-28 14:32:18', cls: 'info' },
+  { msg: 'Scraped 53 businesses from Google Maps', cls: 'success' },
+  { msg: 'Claude enrichment: 48/53 completed, 5 failed', cls: 'warn' },
+  { msg: 'SerpAPI filled 12 missing social profiles', cls: 'success' },
+  { msg: 'Pushed 53 rows to target Google Sheet', cls: 'success' },
+];
+seedLogs.forEach(l => appendLog(l.msg, l.cls));
+
+document.getElementById('simulateLogBtn').addEventListener('click', () => {
+  const entry = logTypes[Math.floor(Math.random() * logTypes.length)];
+  appendLog(entry.msg, entry.cls);
+});
+
+document.getElementById('clearLogBtn').addEventListener('click', () => {
+  document.getElementById('logPanel').innerHTML = '';
+  appendLog('Log panel cleared', 'info');
+});
+
+// ==================== SETTINGS: TOGGLE PASSWORD VISIBILITY ====================
+document.querySelectorAll('.toggle-pw').forEach(icon => {
+  icon.addEventListener('click', function() {
+    const input = document.getElementById(this.dataset.target);
+    if (input.type === 'password') {
+      input.type = 'text';
+      this.className = 'ti ti-eye-off';
+    } else {
+      input.type = 'password';
+      this.className = 'ti ti-eye';
+    }
+  });
+});
+
+// ==================== LIVE PIPELINE REFRESH (simulated) ====================
+setInterval(() => {
+  const bar = document.querySelector('.pipeline-bar.running');
+  if (bar) {
+    const w = parseFloat(bar.style.width);
+    if (w < 100) {
+      bar.style.width = Math.min(w + 1, 100) + '%';
+    } else {
+      bar.style.width = '0%';
+    }
+  }
+}, 2000);
+</script>
+</body>
+</html>
